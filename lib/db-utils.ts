@@ -29,6 +29,7 @@ export type User = {
 
 // Endpoint type
 export type Endpoint = {
+  status: string
   _id?: string | ObjectId
   name: string
   url: string
