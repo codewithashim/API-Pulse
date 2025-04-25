@@ -11,7 +11,10 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "API Pulse - Keep Your Services Alive",
   description: "Monitor and ping your APIs to prevent them from going to sleep",
-    generator: 'v0.dev'
+  icons: {
+    icon: "/favicon.ico",
+  },
+  keywords: "API, monitoring, ping, services, uptime", 
 }
 
 export default function RootLayout({
