@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String     @id @default(cuid())
+  name          String?
+  email         String     @unique
+  password      String
+  role          String     @default("user") // Added role field with default value "user"
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  endpoints     Endpoint[]
+  teams         TeamMember[]
+}
+
+model Endpoint {
+  id            String     @id @default(cuid())
+  name          String
+  url           String
+  method        String     @default("GET")
+  frequency     String     @default("hourly") // hourly, daily, weekly, custom
+  cronExpression String?   // For custom frequency
+  headers       Json?      // JSON object with headers
+  payload       Json?      // JSON payload for POST/PUT requests
+  timeout       Int        @default(30)       // Timeout in seconds
+  retryOnFailure Boolean   @default(true)
+  notifications Boolean    @default(true)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  userId        String
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pings         Ping[]
+  teamId        String?
+  team          Team?      @relation(fields: [teamId], references: [id], onDelete: SetNull)
+}
+
+model Ping {
+  id            String     @id @default(cuid())
+  timestamp     DateTime   @default(now())
+  status        String     // success, failure
+  statusCode    Int?
+  responseTime  Int?       // in milliseconds
+  response      String?    // Response body or error message
+  endpointId    String
+  endpoint      Endpoint   @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+}
+
+// New models for team collaboration
+model Team {
+  id            String     @id @default(cuid())
+  name          String
+  description   String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  members       TeamMember[]
+  endpoints     Endpoint[]
+}
+
+model TeamMember {
+  id            String     @id @default(cuid())
+  role          String     // owner, admin, member
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  userId        String
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teamId        String
+  team          Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, teamId])
+}
