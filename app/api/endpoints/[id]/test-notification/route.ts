@@ -13,31 +13,32 @@ export async function POST(request: Request, { params }: { params: { id: string 
   }
 
   try {
-    // Check if the endpoint exists and belongs to the user
+    // Get the endpoint with user data for notifications
     const endpointWithUser = await getEndpointWithUser(params.id)
-
+    
     if (!endpointWithUser) {
       return NextResponse.json({ error: "Endpoint not found" }, { status: 404 })
     }
 
+    // Check if the endpoint belongs to the current user
     if (endpointWithUser.userId.toString() !== session.user.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
     }
 
-    // Create a mock ping for testing notification
-    const mockPing = await createPing({
+    // Create a test ping
+    const testPing = await createPing({
       timestamp: new Date(),
-      status: "failure",
-      statusCode: 500,
-      responseTime: 0,
+      status: "test",
+      statusCode: 200,
+      responseTime: 123,
       response: "This is a test notification",
-      endpointId: endpointWithUser._id!.toString(),
+      endpointId: params.id,
     })
 
-    // Send test notification
-    await sendNotification(endpointWithUser, mockPing)
+    // Send a test notification
+    await sendNotification(endpointWithUser, testPing, "failure")
 
-    return NextResponse.json({ success: true, message: "Test notification sent" })
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Failed to send test notification:", error)
     return NextResponse.json({ error: "Failed to send test notification" }, { status: 500 })
