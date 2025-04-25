@@ -24,32 +24,19 @@ export default function EndpointDetailsPage() {
   useEffect(() => {
     const fetchEndpoint = async () => {
       try {
-        // In a real app, this would fetch from your API
-        // const response = await fetch(`/api/endpoints/${params.id}`)
-        // const data = await response.json()
-        // setEndpoint(data)
-
-        // For demo purposes, we'll use mock data
-        setEndpoint({
-          id: params.id,
-          name: "Production API",
-          url: "https://api.example.com/v1/status",
-          method: "GET",
-          frequency: "Hourly",
-          status: "Healthy",
-          lastPing: new Date().toISOString(),
-          nextPing: new Date(Date.now() + 3600000).toISOString(),
-          uptime: "99.8%",
-          avgResponseTime: "245ms",
-          successCount: 142,
-          failureCount: 3,
-          notifications: true,
-        })
+        const response = await fetch(`/api/endpoints/${params.id}`)
+        
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`)
+        }
+        
+        const data = await response.json()
+        setEndpoint(data)
       } catch (error) {
-        console.error("Failed to fetch endpoint:", error)
+        console.error("Failed to fetch endpoint data:", error)
         toast({
           title: "Error",
-          description: "Failed to fetch endpoint details",
+          description: "Failed to load endpoint details. Please try again.",
           variant: "destructive",
         })
       } finally {
@@ -63,13 +50,23 @@ export default function EndpointDetailsPage() {
   const handlePingEndpoint = async () => {
     setIsPinging(true)
     try {
-      // In a real app, this would ping the endpoint via your API
-      // await fetch(`/api/endpoints/${params.id}/ping`, {
-      //   method: "POST",
-      // })
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const response = await fetch(`/api/endpoints/${params.id}/ping`, {
+        method: "POST",
+      })
+      
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`)
+      }
+      
+      const result = await response.json()
+      
+      // Update the endpoint data with the latest ping information
+      setEndpoint((prev: { pings: any }) => ({
+        ...prev,
+        status: result.status,
+        lastPing: result.timestamp,
+        pings: [result, ...(prev.pings || [])]
+      }))
 
       toast({
         title: "Success",
@@ -90,13 +87,15 @@ export default function EndpointDetailsPage() {
   const handleTestNotification = async () => {
     setIsSendingNotification(true)
     try {
-      // In a real app, this would send a test notification via your API
-      // await fetch(`/api/endpoints/${params.id}/test-notification`, {
-      //   method: "POST",
-      // })
+      const response = await fetch(`/api/endpoints/${params.id}/test-notification`, {
+        method: "POST",
+      })
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`)
+      }
+
+      const result = await response.json()
 
       toast({
         title: "Success",
