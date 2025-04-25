@@ -56,17 +56,18 @@ export default function NewEndpointPage() {
     setIsLoading(true)
 
     try {
-      // In a real app, this would be an API call to create the endpoint
-      // const response = await fetch('/api/endpoints', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(formData),
-      // })
+      const response = await fetch('/api/endpoints', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create endpoint')
+      }
 
       toast({
         title: "Endpoint created",
@@ -78,7 +79,7 @@ export default function NewEndpointPage() {
       console.error("Failed to create endpoint:", error)
       toast({
         title: "Failed to create endpoint",
-        description: "An error occurred while creating your endpoint.",
+        description: error instanceof Error ? error.message : "An error occurred while creating your endpoint.",
         variant: "destructive",
       })
     } finally {
