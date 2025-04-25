@@ -1,5 +1,5 @@
 {
-  "name": "my-v0-project",
+  "name": "api-pulse",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,6 +8,13 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codewithashim/API-Pulse.git"
+  },
+  "author": "Ashim Rudra Paul",
+  "license": "MIT",
+  "homepage": "http://localhost:3000/",  
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "1.2.2",
